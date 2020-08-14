@@ -1,5 +1,6 @@
 import copy
 import hashlib
+import base64
 
 
 def xor(a, b):
@@ -18,7 +19,8 @@ def get_blocks(m):
 
     if block:
         while len(block) < 16:
-            block.append(b'\x20')
+            # block.append(b'\x20')
+            block.append(' ')
 
         blocks.append(block)
 
@@ -92,22 +94,6 @@ def cross(block, pwd):
     return _block
 
 
-def unpad(block):
-    _block = []
-    nlen = len(block)
-    max_i = nlen-1
-
-    for i in range(nlen-1, 0, -1):
-        if block[i].strip():
-            max_i = i
-            break
-
-    for i in range(max_i + 1):
-        _block.append(block[i])
-
-    return _block
-
-
 def encrypt(msg, pwd):
     cipher = ''
     pwd = hashlib.sha256(pwd.encode()).hexdigest()
@@ -119,18 +105,19 @@ def encrypt(msg, pwd):
             b = shift_right(b)
             b = cross(b, pwd)
         cipher += ''.join(b)
-    return cipher.encode()
+    # return cipher.encode()
+    return base64.b64encode(cipher.encode())
 
 
 def decrypt(cipher, pwd):
     msg = ''
     pwd = hashlib.sha256(pwd.encode()).hexdigest()
 
-    for b in get_blocks(cipher.decode()):
+    for b in get_blocks(base64.b64decode(cipher).decode()):
         for _ in range(4):
             b = cross(b, pwd)
             b = _shift_right(b)
             b = cross(b, pwd)
             b = _shift_bottom(b)
-        msg += ''.join(unpad(b))
+        msg += ''.join(b)
     return msg.strip().encode()

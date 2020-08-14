@@ -127,25 +127,6 @@ class BadCrypto {
         return hashHex;
     }
 
-    static unpad(block) {
-        const _block = [];
-        const maxIndex = block.length - 1;
-        let _maxIndex = block.length - 1;
-
-        for (let i = maxIndex; i >= 0; --i) {
-            if (block[i].trim().length) {
-                _maxIndex = i + 1;
-                break;
-            }
-        }
-
-        for (let i = 0; i < _maxIndex; i++) {
-            _block.push(block[i]);
-        }
-
-        return _block;
-    }
-
     static async encrypt(msg, pwd) {
         let pwdHash = undefined;
         let cipher = '';
@@ -184,9 +165,9 @@ class BadCrypto {
                 b = this.cross(b, pwdHash);
                 b = this._shiftBottom(b);
             }
-            msg += this.unpad(b).join('');
+            msg += b.join('');
         });
 
-        return msg;
+        return msg.trim();
     }
 }
