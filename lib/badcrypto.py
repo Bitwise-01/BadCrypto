@@ -2,6 +2,8 @@ import copy
 import hashlib
 import base64
 
+BLOCK_SIZE = 4
+
 
 def xor(a, b):
     return chr(ord(a) ^ ord(b))
@@ -13,13 +15,12 @@ def get_blocks(m):
 
     for i in m:
         block.append(i)
-        if len(block) >= 16:
+        if len(block) >= BLOCK_SIZE:
             blocks.append(block)
             block = []
 
     if block:
-        while len(block) < 16:
-            # block.append(b'\x20')
+        while len(block) < BLOCK_SIZE:
             block.append(' ')
 
         blocks.append(block)
@@ -76,7 +77,7 @@ def _shift_right(block, n=32):
     _block = []
 
     for i in range(nlen):
-        r = i + 1 if i + 1 < 16 else (i + 1) - nlen
+        r = i + 1 if i + 1 < BLOCK_SIZE else (i + 1) - nlen
         _block.append(block[r])
 
     if n:
@@ -105,7 +106,6 @@ def encrypt(msg, pwd):
             b = shift_right(b)
             b = cross(b, pwd)
         cipher += ''.join(b)
-    # return cipher.encode()
     return base64.b64encode(cipher.encode())
 
 

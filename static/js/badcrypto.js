@@ -1,6 +1,8 @@
 'use strict';
 
 class BadCrypto {
+    static BLOCK_SIZE = 4;
+
     static xor(a, b) {
         return String.fromCharCode(a.charCodeAt() ^ b.charCodeAt());
     }
@@ -11,14 +13,14 @@ class BadCrypto {
 
         for (let e of msg) {
             block.push(e);
-            if (block.length >= 16) {
+            if (block.length >= this.BLOCK_SIZE) {
                 blocks.push(block.slice());
                 block.length = 0;
             }
         }
 
         if (block.length) {
-            while (block.length < 16) {
+            while (block.length < this.BLOCK_SIZE) {
                 block.push(' ');
             }
             blocks.push(block.slice());
@@ -88,8 +90,7 @@ class BadCrypto {
         let r = undefined;
 
         for (let i = 0; i < nlen; i++) {
-            // r = i + 4 < 16 ? i + 4 : i + 4 - nlen;
-            r = i + 1 < 16 ? i + 1 : i + 1 - nlen;
+            r = i + 1 < this.BLOCK_SIZE ? i + 1 : i + 1 - nlen;
 
             _block_.push(block[r]);
         }
