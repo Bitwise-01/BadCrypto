@@ -1,0 +1,86 @@
+@import url('main.css');
+
+body {
+    background-color: #f8f8f8;
+}
+
+.text-container {
+    height: 128px;
+    border: solid 0.1px #e0e0e0;
+    background-color: #fff;
+}
+
+.form-control,
+.input-group-text {
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+}
+
+.form-control {
+    border-color: #e0e0e0;
+}
+
+.form-control:focus {
+    -webkit-box-shadow: none;
+    border-color: #e0e0e0;
+    box-shadow: none;
+}
+
+#editor-encr,
+#editor-decr {
+    outline: none;
+    height: 128px;
+    overflow: auto;
+    padding: 1%;
+    line-height: 2;
+    font-size: 16px;
+    border-radius: 2px;
+    white-space: pre-wrap;
+    background-color: #fff;
+}
+
+.btn-container {
+    border-top: solid 1px #e0e0e0;
+    padding-top: 10px;
+    padding-right: 15px;
+}
+
+.footer {
+    padding-top: 4px;
+    position: absolute;
+    bottom: 0;
+    background-color: #232323;
+    left: 0;
+    right: 0;
+    height: 35px;
+    color: #fff;
+    text-align: center;
+}
+
+.footer .info-cont {
+    padding-left: 5px;
+}
+
+.footer .info-tag {
+    font-weight: bolder;
+}
+
+.footer .info-tag,
+.footer .info-val {
+    font-size: 12px;
+}
+
+/* Scroll */
+::-webkit-scrollbar {
+    width: 1px;
+    height: 1.5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #202020;
+}
