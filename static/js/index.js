@@ -89,8 +89,7 @@ btnDecr.click(() => {
             stopLoading(false);
             decrLast = msg;
         })
-        .catch((e) => {
-            console.log(e);
+        .catch(() => {
             stopLoading(false);
         });
 
