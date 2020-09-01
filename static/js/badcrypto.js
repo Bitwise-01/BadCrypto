@@ -1,35 +1,36 @@
 'use strict';
 
-class BadCrypto {
-    static BLOCK_SIZE = 4;
+const BadCrypto = function () {
+    const BLOCK_SIZE = 4; // 16;
+    const ROUNDS = 4;
 
-    static xor(a, b) {
+    this.xor = (a, b) => {
         return String.fromCharCode(a.charCodeAt() ^ b.charCodeAt());
-    }
+    };
 
-    static getBlocks(msg) {
+    this.getBlocks = (msg) => {
         const blocks = [];
         const block = [];
 
         for (let e of msg) {
             block.push(e);
-            if (block.length >= this.BLOCK_SIZE) {
+            if (block.length >= BLOCK_SIZE) {
                 blocks.push(block.slice());
                 block.length = 0;
             }
         }
 
         if (block.length) {
-            while (block.length < this.BLOCK_SIZE) {
+            while (block.length < BLOCK_SIZE) {
                 block.push(' ');
             }
             blocks.push(block.slice());
         }
 
         return blocks;
-    }
+    };
 
-    static shiftBottom(block) {
+    this.shiftBottom = (block) => {
         const nlen = block.length;
         const _block = block.slice();
 
@@ -45,9 +46,9 @@ class BadCrypto {
         }
 
         return _block;
-    }
+    };
 
-    static _shiftBottom(block) {
+    this._shiftBottom = (block) => {
         const nlen = block.length;
         const _block = block.slice();
 
@@ -64,9 +65,9 @@ class BadCrypto {
         }
 
         return _block;
-    }
+    };
 
-    static shiftRight(block) {
+    this.shiftRight = (block) => {
         const nlen = block.length;
         const _block = block.slice();
         let _block_ = [];
@@ -80,9 +81,9 @@ class BadCrypto {
         }
 
         return _block_;
-    }
+    };
 
-    static _shiftRight(block, n = 32) {
+    this._shiftRight = (block, n = 32) => {
         const nlen = block.length;
         const _block = block.slice();
         let _block_ = [];
@@ -90,15 +91,15 @@ class BadCrypto {
         let r = undefined;
 
         for (let i = 0; i < nlen; i++) {
-            r = i + 1 < this.BLOCK_SIZE ? i + 1 : i + 1 - nlen;
+            r = i + 1 < BLOCK_SIZE ? i + 1 : i + 1 - nlen;
 
             _block_.push(block[r]);
         }
 
         return _block_;
-    }
+    };
 
-    static cross(block, pwd) {
+    this.cross = (block, pwd) => {
         const nlen = block.length;
         let _block = [];
 
@@ -107,9 +108,9 @@ class BadCrypto {
         }
 
         return _block;
-    }
+    };
 
-    static async sha256(str) {
+    this.sha256 = async (str) => {
         const min = 0;
         const max = 16;
 
@@ -126,9 +127,9 @@ class BadCrypto {
         const hashHex = hashArray.map((b) => ('00' + b.toString(16)).slice(-2)).join('');
 
         return hashHex;
-    }
+    };
 
-    static async encrypt(msg, pwd) {
+    this.encrypt = async (msg, pwd) => {
         let pwdHash = undefined;
         let cipher = '';
 
@@ -137,7 +138,7 @@ class BadCrypto {
         });
 
         this.getBlocks(msg).forEach((b) => {
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < ROUNDS; i++) {
                 b = this.shiftBottom(b);
                 b = this.cross(b, pwdHash);
                 b = this.shiftRight(b);
@@ -147,9 +148,9 @@ class BadCrypto {
         });
 
         return Base64.encode(cipher);
-    }
+    };
 
-    static async decrypt(cipher, pwd) {
+    this.decrypt = async (cipher, pwd) => {
         let pwdHash = undefined;
         let msg = '';
 
@@ -160,7 +161,7 @@ class BadCrypto {
         cipher = Base64.decode(cipher);
 
         this.getBlocks(cipher).forEach((b) => {
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < ROUNDS; i++) {
                 b = this.cross(b, pwdHash);
                 b = this._shiftRight(b);
                 b = this.cross(b, pwdHash);
@@ -170,5 +171,5 @@ class BadCrypto {
         });
 
         return msg.trim();
-    }
-}
+    };
+};
