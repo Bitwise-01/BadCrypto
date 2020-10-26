@@ -1,175 +1,203 @@
 'use strict';
 
 const BadCrypto = function () {
-    const BLOCK_SIZE = 4; // 16;
-    const ROUNDS = 4;
+	const BLOCK_SIZE = 16;
+	const ROUNDS = 14;
 
-    this.xor = (a, b) => {
-        return String.fromCharCode(a.charCodeAt() ^ b.charCodeAt());
-    };
+	const PAD_SYM = 0x1b;
 
-    this.getBlocks = (msg) => {
-        const blocks = [];
-        const block = [];
+	this.sha256 = async (str) => {
+		// THIS IS NOT MY CODE. // 
 
-        for (let e of msg) {
-            block.push(e);
-            if (block.length >= BLOCK_SIZE) {
-                blocks.push(block.slice());
-                block.length = 0;
-            }
-        }
+		const min = 0;
+		const max = 16;
 
-        if (block.length) {
-            while (block.length < BLOCK_SIZE) {
-                block.push(' ');
-            }
-            blocks.push(block.slice());
-        }
+		// encode as UTF-8
+		const msgBuffer = new TextEncoder('utf-8').encode(str);
 
-        return blocks;
-    };
+		// hash the str
+		const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
 
-    this.shiftBottom = (block) => {
-        const nlen = block.length;
-        const _block = block.slice();
+		// convert ArrayBuffer to Array
+		const hashArray = Array.from(new Uint8Array(hashBuffer));
 
-        let r = undefined;
-        let a = undefined;
-        let b = undefined;
+		// convert bytes to hex string
+		return hashArray.map((b) => ('00' + b.toString(16)).slice(-2)).join('');
+	};
 
-        for (let i = 0; i < nlen; i++) {
-            r = i + 1 < nlen ? i + 1 : i + 1 - nlen;
-            a = _block[i];
-            b = _block[r];
-            _block[i] = this.xor(a, b);
-        }
+	this.reverse = (str) => {
+		return str.split('').reverse().join('')
+	}
 
-        return _block;
-    };
+	this.pad = (block) => {
+		const _block = block.slice();
 
-    this._shiftBottom = (block) => {
-        const nlen = block.length;
-        const _block = block.slice();
+		for (let i = 0; i < BLOCK_SIZE - block.length; i++) {
+			_block.push(PAD_SYM);
+		}
 
-        let r = undefined;
-        let a = undefined;
-        let b = undefined;
+		return _block;
+	}
 
-        for (let i = nlen - 1; i >= 0; i--) {
-            r = i + 1 < nlen ? i + 1 : i + 1 - nlen;
+	this.unpad = (block) => {
+		let maxIndex = BLOCK_SIZE;
 
-            a = _block[i];
-            b = _block[r];
-            _block[i] = this.xor(a, b);
-        }
+		for (let i = 0; i < block.length; i++) {
+			if (block[i].charCodeAt() === PAD_SYM) {
+				maxIndex = i;
+				break;
+			}
+		}
 
-        return _block;
-    };
+		return block.slice(0, maxIndex);
+	}
 
-    this.shiftRight = (block) => {
-        const nlen = block.length;
-        const _block = block.slice();
-        let _block_ = [];
+	this.xor = (a, b) => {
+		a = typeof (a) === 'string' ? a.charCodeAt() : a;
+		b = typeof (b) === 'string' ? b.charCodeAt() : b;
+		return String.fromCharCode(a ^ b);
+	};
 
-        let r = undefined;
+	this.getBlocks = (msg) => {
+		const blocks = [];
+		const block = [];
 
-        for (let i = 0; i < nlen; i++) {
-            r = i - 1 < 0 ? nlen - i - 1 : i - 1;
+		for (let e of msg) {
+			block.push(e);
+			if (block.length >= BLOCK_SIZE) {
+				blocks.push(block.slice());
+				block.length = 0;
+			}
+		}
 
-            _block_.push(_block[r]);
-        }
+		if (block.length) {
+			blocks.push(this.pad(block).slice());
+		}
 
-        return _block_;
-    };
+		return blocks;
+	};
 
-    this._shiftRight = (block, n = 32) => {
-        const nlen = block.length;
-        const _block = block.slice();
-        let _block_ = [];
+	this.shiftBottom = (block) => {
+		const nlen = block.length;
+		const _block = block.slice();
 
-        let r = undefined;
+		let r = undefined;
 
-        for (let i = 0; i < nlen; i++) {
-            r = i + 1 < BLOCK_SIZE ? i + 1 : i + 1 - nlen;
+		for (let i = 0; i < nlen; i++) {
+			r = i + 1 < nlen ? i + 1 : i + 1 - nlen;
+			_block[i] = this.xor(_block[i], _block[r]);
+		}
 
-            _block_.push(block[r]);
-        }
+		return _block;
+	};
 
-        return _block_;
-    };
+	this._shiftBottom = (block) => {
+		const nlen = block.length;
+		const _block = block.slice();
 
-    this.cross = (block, pwd) => {
-        const nlen = block.length;
-        let _block = [];
+		let r = undefined;
 
-        for (let i = 0; i < nlen; i++) {
-            _block.push(this.xor(block[i], pwd[i]));
-        }
+		for (let i = nlen - 1; i >= 0; i--) {
+			r = i + 1 < nlen ? i + 1 : i + 1 - nlen;
+			_block[i] = this.xor(_block[i], _block[r]);
+		}
 
-        return _block;
-    };
+		return _block;
+	};
 
-    this.sha256 = async (str) => {
-        const min = 0;
-        const max = 16;
+	this.shiftRight = (block) => {
+		const nlen = block.length;
+		const _block = block.slice();
+		let _block_ = [];
 
-        // encode as UTF-8
-        const msgBuffer = new TextEncoder('utf-8').encode(str);
+		let r = undefined;
 
-        // hash the str
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+		for (let i = 0; i < nlen; i++) {
+			r = i - 1 < 0 ? nlen - i - 1 : i - 1;
+			_block_.push(_block[r]);
+		}
 
-        // convert ArrayBuffer to Array
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
+		return _block_;
+	};
 
-        // convert bytes to hex string
-        const hashHex = hashArray.map((b) => ('00' + b.toString(16)).slice(-2)).join('');
+	this._shiftRight = (block, n = 32) => {
+		const nlen = block.length;
 
-        return hashHex;
-    };
+		let _block = [];
+		let r = undefined;
 
-    this.encrypt = async (msg, pwd) => {
-        let pwdHash = undefined;
-        let cipher = '';
+		for (let i = 0; i < nlen; i++) {
+			r = i + 1 < BLOCK_SIZE ? i + 1 : i + 1 - nlen;
+			_block.push(block[r]);
+		}
 
-        await this.sha256(pwd).then((r) => {
-            pwdHash = r;
-        });
+		return _block;
+	};
 
-        this.getBlocks(msg).forEach((b) => {
-            for (let i = 0; i < ROUNDS; i++) {
-                b = this.shiftBottom(b);
-                b = this.cross(b, pwdHash);
-                b = this.shiftRight(b);
-                b = this.cross(b, pwdHash);
-            }
-            cipher += b.join('');
-        });
+	this.cross = (b1, b2) => {
+		const nlen = b1.length;
+		const block = [];
+		const _block = [];
 
-        return Base64.encode(cipher);
-    };
+		for (let i = 0; i < nlen; i++) {
+			block.push(this.xor(b1[i], b2[i]));
+		}
 
-    this.decrypt = async (cipher, pwd) => {
-        let pwdHash = undefined;
-        let msg = '';
+		let index = b2.length - 1;
 
-        await this.sha256(pwd).then((r) => {
-            pwdHash = r;
-        });
+		for (let i = 0; i < nlen; i++) {
+			_block.push(this.xor(block[i], b2[index]));
+			index = index - 1 >= 0 ? index - 1 : b2.length - 1;
+		}
 
-        cipher = Base64.decode(cipher);
+		return _block;
+	};
 
-        this.getBlocks(cipher).forEach((b) => {
-            for (let i = 0; i < ROUNDS; i++) {
-                b = this.cross(b, pwdHash);
-                b = this._shiftRight(b);
-                b = this.cross(b, pwdHash);
-                b = this._shiftBottom(b);
-            }
-            msg += b.join('');
-        });
+	this.encrypt = async (msg, pwd) => {
+		let pwdHash = undefined;
+		let cipher = '';
 
-        return msg.trim();
-    };
+		await this.sha256(pwd).then((r) => {
+			pwdHash = r;
+		});
+
+		// Prevents ciphertexts with similar inputs from having similar outputs
+		msg = this.cross(msg, this.reverse(msg)).join('');
+
+		this.getBlocks(msg).forEach((b) => {
+			for (let i = 0; i < ROUNDS; i++) {
+				b = this.shiftBottom(b);
+				b = this.cross(b, pwdHash);
+				b = this.shiftRight(b);
+				b = this.cross(b, pwdHash);
+			}
+			cipher += b.join('');
+		});
+
+		return Base64.encode(cipher);
+	};
+
+	this.decrypt = async (cipher, pwd) => {
+		let pwdHash = undefined;
+		let msg = '';
+
+		await this.sha256(pwd).then((r) => {
+			pwdHash = r;
+		});
+
+		cipher = Base64.decode(cipher);
+
+		this.getBlocks(cipher).forEach((b) => {
+			for (let i = 0; i < ROUNDS; i++) {
+				b = this.cross(b, pwdHash);
+				b = this._shiftRight(b);
+				b = this.cross(b, pwdHash);
+				b = this._shiftBottom(b);
+			}
+
+			msg += this.unpad(b).join('');
+		});
+
+		return this.reverse(msg.trim());
+	};
 };

@@ -1,133 +1,58 @@
-'use strict';
+(() => {
+    'use strict';
 
-const MAX_CHAR = 4096;
+    const badCrypto = new BadCrypto();
 
-const loader1 = $('#loader1');
-const loader2 = $('#loader2');
+    const inputLabel = $('#input-label');
+    const outputLabel = $('#output-label');
 
-const btnEncr = $('#btn-encr');
-const btnDecr = $('#btn-decr');
+    const inputLabelTxt = 'Message'; 
+    const outputLabelTxt = 'Ciphertext';
 
-const editorEncr = $('#editor-encr');
-const editorDecr = $('#editor-decr');
+    const inputBox = $('#input-box');
+    const outputBox = $('#output-box');
 
-const pwd = $('#pwd');
+    const password = $('#password');
 
-let isLoading = false;
+    let isEncryptMode = true; 
 
-let encrLast = undefined;
-let decrLast = undefined;
+    $('#swap').click(() => {
+        isEncryptMode = !isEncryptMode;
 
-const badCrypto = new BadCrypto();
+        // Swap labels 
+        inputLabel.text(isEncryptMode ? inputLabelTxt : outputLabelTxt);
+        outputLabel.text(isEncryptMode ? outputLabelTxt : inputLabelTxt);  
+        
+        // Swap text 
+        const inputText = inputBox.text();
+        inputBox.text(outputBox.text());
+        outputBox.text(inputText);
+    });
 
-btnEncr.click(() => {
-    let encrText = editorEncr.text();
-    let pwdVal = pwd.val();
-
-    if (encrText.length <= 0 || pwdVal.length <= 0 || isLoading) {
-        return;
-    }
-
-    if (encrText.length >= MAX_CHAR || pwdVal.length >= MAX_CHAR) {
-        return;
-    }
-
-    if (encrText === encrLast) {
-        return;
-    }
-
-    startLoading(true);
-
-    badCrypto
-        .encrypt(encrText, pwdVal)
-        .then((cipher) => {
-            editorEncr.text(cipher);
-            stopLoading(true);
-            encrLast = cipher;
-        })
-        .catch(() => {
-            stopLoading(true);
+    const encrypt = (msg, pwd) => {
+        badCrypto.encrypt(msg, pwd).then((ciphertext) => {
+            outputBox.text(ciphertext);
         });
-
-    // $.ajax({
-    //     type: 'POST',
-    //     url: '/encrypt',
-    //     data: { msg: encrText, pwd: pwdVal },
-    // }).done((resp) => {
-    //     const status = resp['status'];
-
-    //     if (status == 1) {
-    //         editorEncr.text(resp['cipher']);
-    //     }
-
-    //     stopLoading(true);
-    // });
-});
-
-btnDecr.click(() => {
-    let decrText = editorDecr.text();
-    let pwdVal = pwd.val();
-
-    if (decrText.length <= 0 || pwdVal.length <= 0 || isLoading) {
-        return;
-    }
-
-    if (decrText.length >= MAX_CHAR || pwdVal.length >= MAX_CHAR) {
-        return;
-    }
-
-    if (decrText === decrLast) {
-        return;
-    }
-
-    startLoading(false);
-
-    badCrypto
-        .decrypt(decrText, pwdVal)
-        .then((msg) => {
-            editorDecr.text(msg);
-            stopLoading(false);
-            decrLast = msg;
-        })
-        .catch(() => {
-            stopLoading(false);
+    };
+    
+    const decrypt = (ciphertext, pwd) => {
+        badCrypto.decrypt(ciphertext, pwd).then((msg) => {
+            outputBox.text(msg);
         });
+    };
 
-    // $.ajax({
-    //     type: 'POST',
-    //     url: '/decrypt',
-    //     data: { cipher: decrText, pwd: pwdVal },
-    // }).done((resp) => {
-    //     const status = resp['status'];
+    const process = () => {
+        const inputText = inputBox.text().trim();
+        const pwd = password.val().trim();
 
-    //     if (status == 1) {
-    //         editorDecr.text(resp['msg']);
-    //     }
+        if (!pwd.length) {
+            password.focus();
+            return;
+        } 
 
-    //     stopLoading(false);
-    // });
-});
+        isEncryptMode ? encrypt(inputText, pwd) : decrypt(inputText, pwd);
+    };
 
-function startLoading(isEncrypt) {
-    if (isEncrypt) {
-        loader1.prop('hidden', false);
-        btnEncr.prop('hidden', true);
-    } else {
-        loader2.prop('hidden', false);
-        btnDecr.prop('hidden', true);
-    }
-
-    isLoading = true;
-}
-
-function stopLoading(isEncrypt) {
-    if (isEncrypt) {
-        loader1.prop('hidden', true);
-        btnEncr.prop('hidden', false);
-    } else {
-        loader2.prop('hidden', true);
-        btnDecr.prop('hidden', false);
-    }
-
-    isLoading = false;
-}
+    inputBox[0].addEventListener('keyup', () => process());
+    password[0].addEventListener('keyup', () => process());
+})();
