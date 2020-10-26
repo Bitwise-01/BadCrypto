@@ -53,9 +53,6 @@
         isEncryptMode ? encrypt(inputText, pwd) : decrypt(inputText, pwd);
     };
 
-    inputBox.keyup(() => process());
-    password.keyup(() => process());
-
-    inputBox.change(() => process());
-    password.change(() => process());
+    inputBox.on('input', () => process());
+    password.on('input', () => process());
 })();
