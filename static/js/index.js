@@ -16,6 +16,10 @@
 
     let isEncryptMode = true; 
 
+    $(document).ready(() => {
+        password.focus();
+    });
+
     $('#swap').click(() => {
         isEncryptMode = !isEncryptMode;
 
@@ -39,7 +43,7 @@
         badCrypto.decrypt(ciphertext, pwd).then((msg) => {
             outputBox.text(msg);
         });
-    };
+    }; 
 
     const process = () => {
         const inputText = inputBox.text().trim();
@@ -52,7 +56,7 @@
 
         isEncryptMode ? encrypt(inputText, pwd) : decrypt(inputText, pwd);
     };
-
+    
     inputBox.on('input', () => process());
     password.on('input', () => process());
 })();
