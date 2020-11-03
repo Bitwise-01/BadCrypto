@@ -10,9 +10,10 @@
     const outputLabelTxt = 'Ciphertext';
 
     const inputBox = $('#input-box');
-    const outputBox = $('#output-box');
+    const outputBox = $('#output-display');
 
     const password = $('#password');
+    const copyBtn = $('#copy-btn');
 
     let isEncryptMode = true; 
 
@@ -56,7 +57,39 @@
 
         isEncryptMode ? encrypt(inputText, pwd) : decrypt(inputText, pwd);
     };
+
+    const copyToClipboard = (value) => {
+         const textArea = document.createElement('textarea'); 
+
+         textArea.value = value; 
+         document.body.appendChild(textArea); 
+
+         textArea.select(); 
+         document.execCommand('copy'); 
+
+         document.body.removeChild(textArea); 
+    };
+
+    const copy = () => {
+        const ciphertextCopied = $('#ciphertext-copied');
+        const successMsg = 'Copied!';
+        const failMsg = 'Failed to copy!';
+
+        if (outputBox.text().length) {
+            copyToClipboard(outputBox.text());
+        } {
+            copyBtn.blur();
+        }
+
+        ciphertextCopied.text(outputBox.text().length ? successMsg : failMsg); 
+        ciphertextCopied.css({'display': 'inline'});        
+
+        setTimeout(() => {
+            ciphertextCopied.css({'display': 'none'});
+        }, 850);    
+    };
     
     inputBox.on('input', () => process());
     password.on('input', () => process());
+    copyBtn.click(() => copy());
 })();

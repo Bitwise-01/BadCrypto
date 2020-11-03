@@ -57,12 +57,25 @@
                         <div class="row p-2">
                             <div
                                 id="input-box"
-                                class="col-12 mb-2 col-lg-6 box"
+                                class="col-12 col-lg-6 box"
                                 contenteditable
                                 spellcheck="false"
                                 data-gramm_editor="false"
                             ></div>
-                            <div id="output-box" class="col-12 col-lg-6 box"></div>
+                            <div id="output-box" class="col-12 col-lg-6 box">
+                                <div class="row">
+                                    <div class="col">
+                                        <button class="btn btn-sm btn-dark" id="copy-btn">Copy</button>
+                                        <span id="ciphertext-copied"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row pl-0 pr-0">
+                                    <div class="col pt-1 pl-lg-0 pr-lg-0">
+                                        <div id="output-display" class="box"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

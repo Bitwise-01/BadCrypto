@@ -12,7 +12,6 @@ body {
     background-color: #202020;
     border: 1px solid #f5f5f5;
     color: #fff;
-
     word-wrap: break-word;
 }
 
@@ -20,6 +19,21 @@ body {
     line-height: 2;
     width: 307px;
     text-align: center;
+}
+
+#ciphertext-copied {
+    display: none;
+    margin-left: 10px;
+    padding: 5px 12px;
+    background-color: #000000;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 12.5px;
+}
+
+#output-display {
+    border: none;
+    overflow: unset;
 }
 
 .footer {
