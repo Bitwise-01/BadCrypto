@@ -8,11 +8,17 @@ body {
     outline: none;
     padding: 1.5%;
     height: 380px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     background-color: #202020;
     border: 1px solid #f5f5f5;
     color: #fff;
     word-wrap: break-word;
+}
+
+#output-display {
+    height: 340px;
+    border: none;
 }
 
 #password {
@@ -29,11 +35,6 @@ body {
     border-radius: 4px;
     color: #fff;
     font-size: 12.5px;
-}
-
-#output-display {
-    height: 340px;
-    border: none;
 }
 
 .footer {
@@ -58,4 +59,32 @@ body {
 .footer .info-tag,
 .footer .info-val {
     font-size: 12px;
+}
+
+/********************* Media Queries *********************/
+/* Large desktops and laptops */
+@media (min-width: 1200px) {
+}
+
+/* Landscape tablets and medium desktops */
+@media (min-width: 992px) and (max-width: 1199px) {
+}
+
+/* Portrait tablets and small desktops */
+@media (min-width: 768px) and (max-width: 991px) {
+}
+
+/* Landscape phones and portrait tablets */
+@media (max-width: 767px) {
+}
+
+/* Portrait phones and smaller */
+@media (max-width: 480px) {
+    .box {
+        height: 300px;
+    }
+
+    #output-display {
+        height: 280px;
+    }
 }
