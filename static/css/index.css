@@ -81,14 +81,15 @@ body {
 /* Portrait phones and smaller */
 @media (max-width: 480px) {
     .box {
+        font-size: 12px;
         height: 100px;
     }
 
     #output-box {
-        height: 120px;
+        height: 135px;
     }
 
     #output-display {
-        height: 115px;
+        height: 118px;
     }
 }
