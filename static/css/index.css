@@ -32,8 +32,8 @@ body {
 }
 
 #output-display {
+    height: 340px;
     border: none;
-    overflow: unset;
 }
 
 .footer {
